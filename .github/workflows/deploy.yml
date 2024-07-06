@@ -1,4 +1,3 @@
-
 name: Deploy to cPanel
 
 on:
@@ -23,3 +22,4 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: build/  # Specify the folder you want to deploy
