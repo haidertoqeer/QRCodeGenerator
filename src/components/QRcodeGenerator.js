@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import QRCode from 'qrcode.react';
 import { Button, TextField, Container, Typography } from '@mui/material';
 import { styled } from '@mui/system';
@@ -17,14 +17,7 @@ const StyledQRCodeContainer = styled('div')(({ opacity }) => ({
 
 const StyledButton = styled(Button)({
   marginTop: '20px',
-  marginRight: '10px'
-});
-
-const StyledHeading = styled(Typography)({
-  fontFamily: 'Arial, sans-serif',
-  color: '#ff8c00', // Dark orange color
-  fontWeight: 'bold',
-  textShadow: '2px 2px 4px rgba(0, 0, 5, 0.2)', // Adding some shadow for a fancy effect
+  marginRight: '10px',
 });
 
 const QRCodeGenerator = () => {
@@ -48,30 +41,40 @@ const QRCodeGenerator = () => {
 
   const downloadAsJpg = () => {
     const canvas = qrRef.current.querySelector('canvas');
-    const link = document.createElement('a');
-    link.download = 'qrcode.jpg';
-    link.href = canvas.toDataURL('image/jpeg');
-    link.click();
+    if (canvas) {
+      const link = document.createElement('a');
+      link.download = 'qrcode.jpg';
+      link.href = canvas.toDataURL('image/jpeg');
+      link.click();
+    }
   };
 
   const downloadAsSvg = () => {
     const svg = qrRef.current.querySelector('svg');
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'qrcode.svg';
-    link.click();
-    URL.revokeObjectURL(url);
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'qrcode.svg';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
   };
+
+  useEffect(() => {
+    if (text) {
+      qrRef.current.querySelector('canvas')?.setAttribute('id', 'qr-canvas');
+    }
+  }, [text]);
 
   return (
     <>
       <StyledContainer>
-        <StyledHeading variant="h4" component="h1" gutterBottom>
+        <Typography variant="h4" component="h1" gutterBottom>
           QR Code Generator
-        </StyledHeading>
+        </Typography>
         <TextField
           label="Enter text to generate QR code"
           variant="outlined"
@@ -81,7 +84,7 @@ const QRCodeGenerator = () => {
           margin="normal"
         />
         <StyledQRCodeContainer ref={qrRef} opacity={text ? 1 : 0.3}>
-          <QRCode value={text} size={256} renderAs="svg" />
+          <QRCode value={text} size={256} renderAs="canvas" />
         </StyledQRCodeContainer>
       </StyledContainer>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
